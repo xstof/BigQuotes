@@ -43,7 +43,7 @@ namespace QuoteApi
                                });
 
                 var basePath = PlatformServices.Default.Application.ApplicationBasePath;
-                var xmlPath = Path.Combine(basePath, "QuoteApi.xml");
+                var xmlPath = Path.Combine(basePath, "wwwroot\\QuoteApi.xml");
                 opt.IncludeXmlComments(xmlPath);
             });
 

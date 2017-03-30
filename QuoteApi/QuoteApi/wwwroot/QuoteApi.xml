@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>QuoteApi</name>
+    </assembly>
+    <members>
+        <member name="M:QuoteApi.Controllers.QuotesController.Get">
+            <summary>
+            Retrieves random quote
+            </summary>
+            <returns>Random quote.</returns>
+        </member>
+        <member name="T:QuoteApi.Domain.Quote">
+            <summary>
+            Represents a "quote" or "saying"
+            </summary>
+        </member>
+        <member name="P:QuoteApi.Domain.Quote.Id">
+            <summary>
+            Unique identifier for the quote
+            </summary>
+        </member>
+        <member name="P:QuoteApi.Domain.Quote.QuoteText">
+            <summary>
+            The actual quote or saying
+            </summary>
+        </member>
+        <member name="P:QuoteApi.Domain.Quote.Author">
+            <summary>
+            The author of the quote or saying
+            </summary>
+        </member>
+        <member name="T:QuoteApi.Services.InMemoryQuotesService">
+            <summary>
+            Service which generates random quotes fron in memory store
+            </summary>
+        </member>
+        <member name="M:QuoteApi.Services.InMemoryQuotesService.#ctor">
+            <summary>
+            Initializes in memory quotes service
+            </summary>
+        </member>
+        <member name="M:QuoteApi.Services.InMemoryQuotesService.GetRandomQuote">
+            <summary>
+            Gets a random quote
+            </summary>
+            <returns></returns>
+        </member>
+    </members>
+</doc>
