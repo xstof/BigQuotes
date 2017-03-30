@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using QuoteApi.Services;
+using QuoteApi.Domain;
 
 namespace QuoteApi.Controllers
 {
@@ -17,8 +18,13 @@ namespace QuoteApi.Controllers
             this.quotesService = quotesService;
         }
 
+        /// <summary>
+        /// Retrieves random quote
+        /// </summary>
+        /// <returns>Random quote.</returns>
         // GET api/quotes/random
         [HttpGet("/api/quotes/random", Name="GetRandomQuote")]
+        [ProducesResponseType(typeof(Quote), 200)]
         public ActionResult Get()
         {
             var quote = quotesService.GetRandomQuote();
