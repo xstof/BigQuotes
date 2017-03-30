@@ -1,0 +1,200 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "publisherEmail": {
+            "type": "string",
+            "minLength": 1,
+            "metadata": {
+                "description": "The email address of the owner of the service"
+            }
+        },
+        "publisherName": {
+            "type": "string",
+            "minLength": 1,
+            "metadata": {
+                "description": "The name of the owner of the service"
+            }
+        },
+        "sku": {
+            "type": "string",
+            "allowedValues": [
+                "Developer",
+                "Standard",
+                "Premium"
+            ],
+            "defaultValue": "Developer",
+            "metadata": {
+                "description": "The pricing tier of this API Management service"
+            }
+        },
+        "skuCount": {
+            "type": "string",
+            "allowedValues": [
+                "1",
+                "2"
+            ],
+            "defaultValue": "1",
+            "metadata": {
+                "description": "The instance size of this API Management service."
+            }
+        },
+        "appServicePlanName": {
+            "type": "string",
+            "minLength": 1
+        },
+        "appServicePlanSKU": {
+            "type": "string",
+            "allowedValues": [
+                "Free",
+                "Shared",
+                "Basic",
+                "Standard"
+            ],
+            "defaultValue": "Standard"
+        },
+        "appServicePlanWorkerSize": {
+            "type": "string",
+            "allowedValues": [
+                "0",
+                "1",
+                "2"
+            ],
+            "defaultValue": "0"
+        },
+        "webAppName": {
+            "type": "string",
+            "minLength": 1
+        },
+    },
+    "variables": {
+        "apiManagementServiceName": "[concat('apimservice', uniqueString(resourceGroup().id))]"
+    },
+    "resources": [
+        {
+            "apiVersion": "2014-02-14",
+            "name": "[variables('apiManagementServiceName')]",
+            "type": "Microsoft.ApiManagement/service",
+            "location": "[resourceGroup().location]",
+            "tags": {},
+            "properties": {
+                "sku": {
+                    "name": "[parameters('sku')]",
+                    "capacity": "[parameters('skuCount')]"
+                },
+                "publisherEmail": "[parameters('publisherEmail')]",
+                "publisherName": "[parameters('publisherName')]"
+            }
+        },
+        {
+            "name": "[parameters('appServicePlanName')]",
+            "type": "Microsoft.Web/serverfarms",
+            "location": "[resourceGroup().location]",
+            "apiVersion": "2014-06-01",
+            "dependsOn": [],
+            "tags": {
+                "displayName": "AppServicePlan"
+            },
+            "properties": {
+                "name": "[parameters('appServicePlanName')]",
+                "sku": "[parameters('appServicePlanSKU')]",
+                "workerSize": "[parameters('appServicePlanWorkerSize')]",
+                "numberOfWorkers": 1
+            }
+        },
+        {
+            "name": "[parameters('webAppName')]",
+            "type": "Microsoft.Web/sites",
+            "location": "[resourceGroup().location]",
+            "apiVersion": "2015-08-01",
+            "dependsOn": [
+                "[concat('Microsoft.Web/serverfarms/', parameters('appServicePlanName'))]"
+            ],
+            "tags": {
+                "displayName": "WebApp"
+            },
+            "properties": {
+                "name": "[parameters('webAppName')]",
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms/', parameters('appServicePlanName'))]",
+                "siteConfig": {
+                    "AlwaysOn": true
+                }
+            },
+            "resources": [
+                {
+                    "name": "appsettings",
+                    "type": "config",
+                    "apiVersion": "2015-08-01",
+                    "dependsOn": [
+                        "[concat('Microsoft.Web/sites/', parameters('webAppName'))]"
+                    ],
+                    "tags": {
+                        "displayName": "WebAppSettings"
+                    },
+                    "properties": {
+                        "WEBSITE_LOAD_CERTIFICATES": "*"
+                    }
+                },
+                {
+                    "apiVersion": "2015-08-01",
+                    "name": "web",
+                    "type": "config",
+                    "dependsOn": [
+                        "[concat('Microsoft.Web/sites/', parameters('webAppName'))]"
+                    ],
+                    "properties": {
+                        "alwaysOn": true,
+                        "cors": {
+                            "allowedOrigins": [
+                                "*"
+                            ]
+                        },
+                        "apiDefinition": {
+                            "url": "[concat('https://', parameters('webAppName'), '.azurewebsites.net/swagger/v1/swagger.json')]"
+                        }
+                    }
+                },
+                {
+                    "name": "preprod",
+                    "type": "slots",
+                    "location": "[resourceGroup().location]",
+                    "apiVersion": "2015-08-01",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Web/sites', parameters('webAppName'))]"
+                    ],
+                    "properties": {},
+                    "resources": [
+                        {
+                            "type": "config",
+                            "apiVersion": "2015-08-01",
+                            "name": "web",
+                            "dependsOn": [
+                                "[resourceId('Microsoft.Web/sites/slots', parameters('webAppName'), 'preprod')]"
+                            ],
+                            "properties": {
+                                "cors": {
+                                    "allowedOrigins": [
+                                        "*"
+                                    ]
+                                },
+                                "apiDefinition": {
+                                    "url": "[concat('https://', parameters('webAppName'), '-preprod.azurewebsites.net/swagger/docs/v1')]"
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "outputs": {
+        "apiManagementInstanceName": {
+            "type": "string",
+            "value": "[variables('apiManagementServiceName')]"
+        },
+        "webAppName" :{
+            "type": "string",
+            "value": "[parameters('webAppName')]"
+        }
+    }
+}
