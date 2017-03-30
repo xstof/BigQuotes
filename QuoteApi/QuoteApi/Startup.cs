@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using QuoteApi.Services;
 
 namespace QuoteApi
 {
@@ -29,6 +30,9 @@ namespace QuoteApi
         {
             // Add framework services.
             services.AddMvc();
+
+            // Add services
+            services.AddTransient<IQuotesService, InMemoryQuotesService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
