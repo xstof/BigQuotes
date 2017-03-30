@@ -8,6 +8,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using QuoteApi.Services;
+using Microsoft.Extensions.PlatformAbstractions;
+using System.IO;
 
 namespace QuoteApi
 {
@@ -31,6 +33,20 @@ namespace QuoteApi
             // Add framework services.
             services.AddMvc();
 
+            // Add Swashbuckle for automated swagger generation.
+            services.AddSwaggerGen(opt => {
+                opt.SwaggerDoc("v1",
+                               new Swashbuckle.AspNetCore.Swagger.Info()
+                               {
+                                   Title = "Quote API",
+                                   Version = "1"
+                               });
+
+                var basePath = PlatformServices.Default.Application.ApplicationBasePath;
+                var xmlPath = Path.Combine(basePath, "QuoteApi.xml");
+                opt.IncludeXmlComments(xmlPath);
+            });
+
             // Add services
             services.AddTransient<IQuotesService, InMemoryQuotesService>();
         }
@@ -42,6 +58,12 @@ namespace QuoteApi
             loggerFactory.AddDebug();
 
             app.UseMvc();
+
+            app.UseSwagger();
+
+            app.UseSwaggerUI(opt => {
+                opt.SwaggerEndpoint("/swagger/v1/swagger.json", "Quote API");
+            });
         }
     }
 }
