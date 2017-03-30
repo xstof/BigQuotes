@@ -30,6 +30,9 @@ namespace QuoteApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // Add configuration
+            services.AddSingleton<IConfiguration>(Configuration);
+
             // Add framework services.
             services.AddMvc();
 
@@ -43,8 +46,12 @@ namespace QuoteApi
                                });
 
                 var basePath = PlatformServices.Default.Application.ApplicationBasePath;
-                var xmlPath = Path.Combine(basePath, "wwwroot\\QuoteApi.xml");
+                var xmlPath = "wwwroot\\QuoteApi.xml";
+                // var xmlPath = Path.Combine(basePath, "wwwroot\\QuoteApi.xml");
                 opt.IncludeXmlComments(xmlPath);
+
+                // Add http and https schemes to the generated swagger doc:
+                opt.DocumentFilter<SwaggerSchemeFilter>();
             });
 
             // Add services
@@ -65,5 +72,33 @@ namespace QuoteApi
                 opt.SwaggerEndpoint("/swagger/v1/swagger.json", "Quote API");
             });
         }
+
+        /// <summary>
+        /// Swashbuckle filter which adds both http and https schemes to the generated open api definition
+        /// </summary>
+        public class SwaggerSchemeFilter : Swashbuckle.AspNetCore.SwaggerGen.IDocumentFilter
+        {
+            private readonly IConfiguration config;
+
+            public SwaggerSchemeFilter(IConfiguration config)
+            {
+                this.config = config;
+            }
+
+            public void Apply(Swashbuckle.AspNetCore.Swagger.SwaggerDocument swaggerDoc,
+                              Swashbuckle.AspNetCore.SwaggerGen.DocumentFilterContext context)
+            {
+                swaggerDoc.Schemes = new string[] { "http", "https" };
+
+                // Determine host:
+                var host = "localhost";
+                if(! String.IsNullOrWhiteSpace(System.Environment.GetEnvironmentVariable("WEBSITE_HOSTNAME"))) {
+                    host = System.Environment.GetEnvironmentVariable("WEBSITE_HOSTNAME");
+                }
+
+                swaggerDoc.Host = host;
+            }
+        }
+
     }
 }

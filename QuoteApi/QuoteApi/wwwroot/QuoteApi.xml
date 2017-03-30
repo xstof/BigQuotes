@@ -46,5 +46,10 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="T:QuoteApi.Startup.SwaggerSchemeFilter">
+            <summary>
+            Swashbuckle filter which adds both http and https schemes to the generated open api definition
+            </summary>
+        </member>
     </members>
 </doc>
