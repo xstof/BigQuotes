@@ -37,11 +37,11 @@ namespace QuoteApi.Services
         {
             return new List<Quote>()
             {
-                new Quote("0", "first quote", "first author"),
-                new Quote("1", "second quote", "second author"),
-                new Quote("2", "third quote", "third author"),
-                new Quote("3", "fourth quote", "fourth author"),
-                new Quote("4", "fifth quote", "fifth author"),
+                new Quote("0", "You can put wings on a pig but that doesn't make it an eagle.", "William J Clinton"),
+                new Quote("1", "I learned long ago never to wrestle with a pig.  You get dirty and besides... the pig likes it.", "George Bernard Shaw"),
+                new Quote("2", "Intellectual property has the shelf live of a banana.", "Bill Gates"),
+                new Quote("3", "Someone's sitting in the shade today because someone planted a tree long ago.", "Warren Buffet"),
+                new Quote("4", "Shoot for the moon and if you miss you will still be amongst the stars", "Les Brown"),
             };
         }
     }
