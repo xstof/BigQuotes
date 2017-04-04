@@ -65,7 +65,7 @@
         "webAppName": {
             "type": "string",
             "minLength": 1
-        },
+        }
     },
     "variables": {
         "apiManagementServiceName": "[concat('apimservice', uniqueString(resourceGroup().id))]"
@@ -105,6 +105,7 @@
         {
             "name": "[parameters('webAppName')]",
             "type": "Microsoft.Web/sites",
+            "kind": "api",
             "location": "[resourceGroup().location]",
             "apiVersion": "2015-08-01",
             "dependsOn": [
@@ -118,7 +119,8 @@
                 "serverFarmId": "[resourceId('Microsoft.Web/serverfarms/', parameters('appServicePlanName'))]",
                 "siteConfig": {
                     "AlwaysOn": true
-                }
+                },
+                "kind": "api"
             },
             "resources": [
                 {
@@ -157,12 +159,15 @@
                 {
                     "name": "preprod",
                     "type": "slots",
+                    "kind": "api",
                     "location": "[resourceGroup().location]",
                     "apiVersion": "2015-08-01",
                     "dependsOn": [
                         "[resourceId('Microsoft.Web/sites', parameters('webAppName'))]"
                     ],
-                    "properties": {},
+                    "properties": {
+                        "kind": "api"
+                    },
                     "resources": [
                         {
                             "type": "config",
